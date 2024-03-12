@@ -1,6 +1,6 @@
 const axios = require('axios');
-const { ACCESS_TOKEN, PROFILE_ID } = require('../configure/instagram');
-const { mediaCollection } = require("../configure/db");
+const {ACCESS_TOKEN, PROFILE_ID} = require('../configure/instagram');
+const {mediaCollection} = require("../configure/db");
 const DbService = require('../services/db.service');
 
 class InstagramService {
