@@ -14,12 +14,18 @@ router.get('/', async (req, res) => {
     }
 });
 
-
 // POST media array
 router.post('/', async (req, res) => {
     try {
-        const results = [];
-        for (const item of req.body) {
+        const mediaArray = req.body;
+
+        // Input validation
+        if (!Array.isArray(mediaArray) || mediaArray.length === 0) {
+            return res.status(400).send({ error: "Request body must be a non-empty array" });
+        }
+
+        // Use Promise.all() for concurrent database insertions
+        const insertionPromises = mediaArray.map(async (item) => {
             const media = {
                 media_id: item.media_id,
                 caption: item.caption,
@@ -28,14 +34,14 @@ router.post('/', async (req, res) => {
                 timestamp: item.timestamp,
                 permalink: item.permalink
             };
-            const result = await dbService.postOneImage(media);
-            results.push(result);
-        }
+            return dbService.postOneImage(media);
+        });
+
+        const results = await Promise.all(insertionPromises);
         res.status(201).send(results);
     } catch (error) {
-        res.status(404).send({
-            error: "Image can't be inserted"
-        });
+        console.error("Error inserting images:", error);
+        res.status(500).send({ error: "Internal Server Error" });
     }
 });
 
